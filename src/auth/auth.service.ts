@@ -69,4 +69,22 @@ export class AuthService {
 
     return this.getToken(foundUser);
   }
+
+  getAccessAndRefreshToken(token: string, isRefreshToken: boolean) {
+    const authToken = token.split(' ');
+
+    if (authToken.length !== 2 || authToken[0] !== 'Bearer') {
+      throw new UnauthorizedException('토큰이 유효하지 않습니다.');
+    }
+
+    const payload = this.jwtService.verify(authToken[1], {
+      secret: this.configService.get('SECRET'),
+    });
+
+    if (payload.type !== 'refresh') {
+      throw new UnauthorizedException('refresh token만 사용가능합니다.');
+    }
+
+    return this.createToken(payload, isRefreshToken);
+  }
 }

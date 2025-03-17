@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Headers, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -23,8 +23,16 @@ export class AuthController {
   }
 
   @Post('reissue/accessToken')
-  async reissueAccessToken() {}
+  reissueAccessToken(@Headers('authorization') token: string) {
+    const accessToken = this.authService.getAccessAndRefreshToken(token, false);
+
+    return { accessToken };
+  }
 
   @Post('reissue/refreshToken')
-  async reissueRefreshToken() {}
+  reissueRefreshToken(@Headers('authorization') token: string) {
+    const refreshToken = this.authService.getAccessAndRefreshToken(token, true);
+
+    return { refreshToken };
+  }
 }
