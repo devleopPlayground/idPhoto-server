@@ -1,5 +1,19 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Post,
+  Request,
+  Response,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -34,5 +48,21 @@ export class AuthController {
     const refreshToken = this.authService.getAccessAndRefreshToken(token, true);
 
     return { refreshToken };
+  }
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/login')
+  googleLogin() {}
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleCallback(@Request() req, @Response() res) {
+    const { user, accessToken, refreshToken } = req.user;
+
+    await this.authService.validateGoogleUser(user);
+
+    return res.redirect(
+      `http://localhost:3000?accessToken=${accessToken}&refreshToken=${refreshToken}`,
+    );
   }
 }

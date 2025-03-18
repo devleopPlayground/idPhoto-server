@@ -13,4 +13,7 @@ export class UsersModel {
 
   @Column({ unique: true })
   username: string;
+
+  @Column({ nullable: true })
+  avatarUrl: string;
 }

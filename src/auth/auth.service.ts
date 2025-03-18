@@ -87,4 +87,12 @@ export class AuthService {
 
     return this.createToken(payload, isRefreshToken);
   }
+
+  async validateGoogleUser(googleUser: Omit<UsersModel, 'id'>) {
+    const user = await this.usersService.getUserByEmail(googleUser.email);
+
+    if (user) return user;
+
+    return await this.usersService.createUserWithGoogle(googleUser);
+  }
 }

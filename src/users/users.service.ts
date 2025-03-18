@@ -49,4 +49,10 @@ export class UsersService {
       where: { email },
     });
   }
+
+  async createUserWithGoogle(createUser: Omit<UsersModel, 'id'>) {
+    const user = this.usersRepository.create(createUser);
+
+    return await this.usersRepository.save(user);
+  }
 }
