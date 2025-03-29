@@ -50,6 +50,20 @@ export class AuthController {
     return { refreshToken };
   }
 
+  @Post('verity/accessToken')
+  verifyAccessToken(@Headers('authorization') token: string) {
+    this.authService.verifyAccessAndRefreshToken(token);
+
+    return { message: '유효한 AccessToken입니다.' };
+  }
+
+  @Post('verity/refreshToken')
+  verifyRefreshToken(@Headers('authorization') token: string) {
+    this.authService.verifyAccessAndRefreshToken(token);
+
+    return { message: '유효한 RefreshToken입니다.' };
+  }
+
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
   googleLogin() {}
@@ -62,7 +76,7 @@ export class AuthController {
     await this.authService.validateGoogleUser(user);
 
     return res.redirect(
-      `http://localhost:3000?accessToken=${accessToken}&refreshToken=${refreshToken}`,
+      `http://localhost:3000/googleLogin/token?accessToken=${accessToken}&refreshToken=${refreshToken}`,
     );
   }
 }

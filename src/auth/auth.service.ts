@@ -4,7 +4,7 @@
 
 import { ConfigService } from '@nestjs/config';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { UsersModel } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -86,6 +86,26 @@ export class AuthService {
     }
 
     return this.createToken(payload, isRefreshToken);
+  }
+
+  verifyAccessAndRefreshToken(token: string) {
+    const authToken = token.split(' ');
+
+    if (authToken.length !== 2 || authToken[0] !== 'Bearer') {
+      throw new UnauthorizedException('토큰이 유효하지 않습니다.');
+    }
+
+    try {
+      return this.jwtService.verify(authToken[1], {
+        secret: this.configService.get('SECRET'),
+      });
+    } catch (error) {
+      if (error.name == TokenExpiredError) {
+        throw new UnauthorizedException('RefreshToken이 만료되었습니다.');
+      }
+
+      throw new UnauthorizedException('유효하지 않은 토큰입니다.');
+    }
   }
 
   async validateGoogleUser(googleUser: Omit<UsersModel, 'id'>) {
